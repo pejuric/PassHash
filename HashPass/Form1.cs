@@ -24,22 +24,22 @@ namespace HashPass
             if(textBox1.Text!=null&&textBox1.Text!=""&& 
                textBox2.Text != null && textBox2.Text != "")
             {
-                string path = "C:\\HashedPass" + textBox1.Text + textBox2.Text + ".txt";
-                byte[] tightSpot = gibHashAndSalt(textBox1.Text, textBox2.Text);
-                FileStream guy = new FileStream(path, FileMode.Create);
-                guy.Close();
-                FileStream bro = new FileStream(path, FileMode.Open);
-                bro.Write(tightSpot, 0, 64);
-                bro.Close();
+                string desktopath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                string filepath = desktopath + "\\HashedPass" + textBox1.Text + ".txt";
+                byte[] hashbyte = gibHashAndSalt(textBox1.Text, textBox2.Text);
+                FileStream fcreatestream = new FileStream(filepath, FileMode.Create);
+                fcreatestream.Close();
+                FileStream fopenstream = new FileStream(filepath, FileMode.Open);
+                fopenstream.Write(hashbyte, 0, 64);
+                fopenstream.Close();
             }
         }
         public byte[] gibHashAndSalt(string pass,string name)
         {
-            string holder;
             SHA512Managed myHash = new SHA512Managed();
             byte[] buffer = Encoding.UTF32.GetBytes(pass);
             buffer = myHash.ComputeHash(buffer);
-            holder = Convert.ToBase64String(buffer);
+            string holder = Convert.ToBase64String(buffer);
             holder = holder + name;
             buffer = Encoding.UTF32.GetBytes(holder);
             buffer = myHash.ComputeHash(buffer);
@@ -49,32 +49,37 @@ namespace HashPass
         {
             if (textBox3.Text != null && textBox3.Text != "" &&
                 textBox4.Text != null && textBox4.Text != "")
-            {
-                string check1, check2;
-                byte[] tightSpot = gibHashAndSalt(textBox1.Text, textBox2.Text);
-                check1 = Convert.ToBase64String(tightSpot);
-                string path = "C:\\HashedPass" + textBox3.Text + textBox4.Text + ".txt";
+            {              
+                byte[] hashbyte = gibHashAndSalt(textBox3.Text, textBox4.Text);
+                string check1 = Convert.ToBase64String(hashbyte);
+                string desktopath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                string filepath = desktopath + "\\HashedPass" + textBox3.Text + ".txt";
                 try
                 {     
-                    FileStream bro = new FileStream(path, FileMode.Open);
+                    FileStream fopenstream = new FileStream(filepath, FileMode.Open);
                     byte[] op=new byte[64];
-                    bro.Read(op, 0, 64);
-                    bro.Close();
-                    check2 = Convert.ToBase64String(op);
+                    fopenstream.Read(op, 0, 64);
+                    fopenstream.Close();
+                    string check2 = Convert.ToBase64String(op);
                     if (check1 == check2)
                     {
                         label2.Visible = false;
                         label1.Visible = true;
+                        label3.Visible = false;
+                        fopenstream.Close();
                     }
                     else
                     {
-                        label2.Visible = true;
+                        label2.Visible = false;
                         label1.Visible = false;
+                        label3.Visible = true;
+                        fopenstream.Close();
                     }
                 }
-                catch (FileNotFoundException err) {
+                catch (Exception) {
                     label2.Visible = true;
                     label1.Visible = false;
+                    label3.Visible = false;                  
                 }
             }
         }
